@@ -1293,8 +1293,6 @@ function initLv2(){
       art.className='lv2-strip';
       var codesHtml=d.code.map(function(c){return '<span class="lv2-cpill">'+c+'</span>';}).join('');
       var chipsHtml=d.datasets.map(function(ds){return '<span class="lv2-chip">'+ds+'</span>';}).join('');
-      var filterEsc=d.filter.replace(/'/g,"&#39;");
-      var nameEsc=d.name.replace(/'/g,"&#39;").replace(/&/g,"&amp;");
       art.innerHTML=
         '<button class="lv2-shead" aria-expanded="false">'+
           '<span class="lv2-sno">'+no+'</span>'+
@@ -1306,12 +1304,18 @@ function initLv2(){
         '</button>'+
         '<div class="lv2-dwrap"><div class="lv2-dinner"><div class="lv2-dets">'+
           chipsHtml+
-          '<button class="lv2-xbtn" onclick="lv2Explore(''+filterEsc+'',''+nameEsc+'')">Explore in Catalog &#x2197;</button>'+
+          '<button class="lv2-xbtn" type="button">Explore in Catalog &#x2197;</button>'+
         '</div></div></div>';
       art.querySelector('.lv2-shead').addEventListener('click',function(){
         var open=art.classList.toggle('lv2-open');
         this.setAttribute('aria-expanded',open?'true':'false');
       });
+      (function(dom){
+        art.querySelector('.lv2-xbtn').addEventListener('click',function(ev){
+          ev.stopPropagation();
+          lv2Explore(dom.filter,dom.name);
+        });
+      })(d);
       rack.appendChild(art);
     });
   }
@@ -1349,8 +1353,9 @@ function initLv2(){
   }
 }
 
-// Always defer to after DOM is complete
-document.addEventListener('DOMContentLoaded', initLv2);
+// Script is at end of body — DOM elements already exist. Run now; fall back to event.
+if(document.getElementById('lv2')){ try{ initLv2(); }catch(e){ console.error('lv2 init',e); var b=document.getElementById('lv2-boot'); if(b)b.classList.add('lv2-hide'); } }
+else { document.addEventListener('DOMContentLoaded', initLv2); }
 // ════════════════════════════════════════════════════════════════════════════
 
 </script>
