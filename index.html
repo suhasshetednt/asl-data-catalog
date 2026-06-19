@@ -340,7 +340,10 @@ input,select,textarea{font-family:inherit}
 
   <div class="sidebar-section" style="flex:1;overflow-y:auto">
     <div class="sidebar-label">Navigation</div>
-    <div class="nav-item active" data-view="overview">
+    <div class="nav-item active" data-view="landing">
+      <i class="ti ti-home"></i> Home
+    </div>
+    <div class="nav-item" data-view="overview">
       <i class="ti ti-layout-dashboard"></i> Overview
     </div>
     <div class="nav-item" data-view="discovery">
@@ -395,8 +398,68 @@ input,select,textarea{font-family:inherit}
   <!-- Views -->
   <div class="view-wrap" id="view-wrap">
 
+
+<div class="view active" id="view-landing">
+  <div class="landing-wrap">
+
+    <!-- Hero -->
+    <div class="lp-hero">
+      <div class="lp-hero-grid">
+        <div>
+          <div class="lp-eyebrow">
+            <div class="lp-eyebrow-dot"></div>
+            <span class="lp-eyebrow-text">Live · Dremio EU Cloud</span>
+          </div>
+          <div class="lp-headline">ASL Aviation<br><span>Enterprise Data Platform</span></div>
+          <div class="lp-sub">Single source of truth across all ASL cargo operations — flight data, maintenance records, financial accounts, crew management, and asset registers in one governed catalog.</div>
+          <div class="lp-stats">
+            <div class="lp-stat"><div class="lp-stat-num">201</div><div class="lp-stat-lbl">Datasets</div></div>
+            <div class="lp-stat-sep"></div>
+            <div class="lp-stat"><div class="lp-stat-num">8</div><div class="lp-stat-lbl">Business Domains</div></div>
+            <div class="lp-stat-sep"></div>
+            <div class="lp-stat"><div class="lp-stat-num">9</div><div class="lp-stat-lbl">Source Systems</div></div>
+            <div class="lp-stat-sep"></div>
+            <div class="lp-stat"><div class="lp-stat-num">3,800+</div><div class="lp-stat-lbl">Columns Catalogued</div></div>
+          </div>
+        </div>
+        <div class="lp-hero-actions">
+          <button class="lp-btn-primary" onclick="nav('discovery')">
+            <i class="ti ti-database-search"></i> Browse All Datasets
+          </button>
+          <button class="lp-btn-secondary" onclick="nav('quality')">
+            <i class="ti ti-rosette-discount-check"></i> Data Quality Report
+          </button>
+          <button class="lp-btn-secondary" onclick="window.open('https://app.eu.dremio.cloud/login','_blank')">
+            <i class="ti ti-external-link"></i> Open Dremio EU
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Domain grid -->
+    <div class="lp-section">
+      <div class="lp-section-title"><i class="ti ti-layout-grid" style="font-size:13px"></i> Business Domains</div>
+      <div class="domain-grid" id="lp-domain-grid"></div>
+    </div>
+
+    <!-- Platform strip -->
+    <div class="lp-platform">
+      <span class="lp-platform-label">Data Platform</span>
+      <div class="lp-platform-items">
+        <div class="lp-platform-item"><i class="ti ti-cloud"></i> Dremio Cloud EU (ece53770)</div>
+        <div class="lp-platform-item"><i class="ti ti-circle-dot"></i> Debezium CDC — AMOS PostgreSQL → S3 Iceberg</div>
+        <div class="lp-platform-item"><i class="ti ti-brand-python"></i> PySpark — Oracle ADB → S3 Iceberg</div>
+        <div class="lp-platform-item"><i class="ti ti-api"></i> REST API — Xero Cloud</div>
+        <div class="lp-platform-item"><i class="ti ti-database"></i> Direct — SAP HANA S/4</div>
+        <div class="lp-platform-item"><i class="ti ti-shield-check"></i> DnT Infotech · Data Governance</div>
+      </div>
+    </div>
+
+  </div><!-- landing-wrap -->
+</div>
+
     <!-- OVERVIEW -->
-    <div class="view active" id="view-overview">
+    <div class="view" id="view-overview">
       <div class="ekl-banner">
         <i class="ti ti-sparkles"></i>
         <div>
@@ -575,7 +638,7 @@ function nav(view){
   if(vEl) vEl.classList.add('active');
 
   const titles = {
-    overview:'Platform Overview', discovery:'Data Discovery',
+    landing:'Executive Overview', overview:'Platform Overview', discovery:'Data Discovery',
     glossary:'Business Glossary', lineage:'Data Lineage',
     knowledge:'Knowledge Map',    quality:'Quality & Classification',
     detail:'Table Detail'
@@ -1000,8 +1063,41 @@ function openDremio(){
   window.open('https://app.dremio.cloud','_blank');
 }
 
+
+// ── Landing page domain cards ─────────────────────────────────────────────
+const DOMAINS = [{"id": "flight-ops", "name": "Flight Operations", "sub": "Movement Manager", "systems": ["MM"], "icon": "ti-plane-departure", "color": "#F59E0B", "glow": "rgba(245,158,11,0.25)", "tables": 47, "desc": "Real-time flight leg tracking, ground activities, PNR management, aircraft utilisation, load planning, and OCC scheduling across all ASL routes.", "filter": "Operations"}, {"id": "maintenance", "name": "Maintenance & Engineering", "sub": "MRO / Line / Base", "systems": ["AMOS", "CFM"], "icon": "ti-tool", "color": "#A78BFA", "glow": "rgba(167,139,250,0.25)", "tables": 96, "desc": "Full MRO lifecycle — work orders, work packages, rotable tracking, defect management, MEL control, airworthiness compliance, and engineer sign-off.", "filter": "Maintenance"}, {"id": "finance", "name": "Finance & Accounting", "sub": "Group Consolidation", "systems": ["SAP", "Xero", "Tally", "HOC"], "icon": "ti-chart-pie", "color": "#10B981", "glow": "rgba(16,185,129,0.25)", "tables": 42, "desc": "Multi-entity P&L, balance sheet, EBITDA Flash Report, GL mappings, intercompany eliminations, IFRS 16 leases, and FX rate management across all ASL entities.", "filter": "Finance"}, {"id": "crew", "name": "Crew Management", "sub": "Scheduling & Pairings", "systems": ["AIMS", "MM"], "icon": "ti-users", "color": "#38BDF8", "glow": "rgba(56,189,248,0.25)", "tables": 18, "desc": "Crew pairing, rostering, qualification tracking, per diem calculations, flight duty periods, and crew-on-flight assignment across the network.", "filter": "Operations"}, {"id": "cargo", "name": "Cargo & Freight Commercial", "sub": "Revenue & Capacity", "systems": ["AMOS", "MM"], "icon": "ti-package", "color": "#FB923C", "glow": "rgba(251,146,60,0.25)", "tables": 12, "desc": "Cargo load planning, freight booking management, ULD tracking, revenue by route, capacity utilisation, and ACMI contract management.", "filter": "Maintenance"}, {"id": "fleet", "name": "Fleet & Asset Management", "sub": "Utilisation & Leasing", "systems": ["AMOS", "HOC"], "icon": "ti-plane-tilt", "color": "#06B6D4", "glow": "rgba(6,182,212,0.25)", "tables": 24, "desc": "Fleet register, lease contracts, IFRS 16 right-of-use assets, aircraft utilisation metrics (block hours, cycles), redelivery conditions, and asset valuation.", "filter": "Maintenance"}, {"id": "supply", "name": "Supply Chain & Inventory", "sub": "Parts & Logistics", "systems": ["AMOS"], "icon": "ti-forklift", "color": "#EAB308", "glow": "rgba(234,179,8,0.25)", "tables": 22, "desc": "Rotable and consumable inventory, part requests, purchase orders, repair orders, vendor management, AOG logistics, and bonded store control.", "filter": "Maintenance"}, {"id": "hr", "name": "HR & Workforce", "sub": "People & Payroll", "systems": ["Cezanne", "AMOS"], "icon": "ti-id-badge", "color": "#F472B6", "glow": "rgba(244,114,182,0.25)", "tables": 8, "desc": "Employee records, engineer licensing and ratings, PQS qualification tracking, per diem and allowance management, headcount by base and department.", "filter": "Maintenance"}];
+
+function renderLanding() {
+  const grid = document.getElementById('lp-domain-grid');
+  if (!grid) return;
+  grid.innerHTML = DOMAINS.map(d => `
+    <div class="domain-card" style="--dc:${d.color};--dg:${d.glow}"
+         onclick="domainDrillDown('${d.filter}','${d.name}')">
+      <div class="dc-icon-wrap"><i class="ti ${d.icon}"></i></div>
+      <div class="dc-name">${d.name}</div>
+      <div class="dc-sub">${d.sub}</div>
+      <div class="dc-systems">${d.systems.map(s => `<span class="dc-sys">${s}</span>`).join('')}</div>
+      <div class="dc-desc">${d.desc}</div>
+      <div class="dc-footer">
+        <div class="dc-count"><strong>${d.tables}+</strong> datasets</div>
+        <div class="dc-arrow">Explore <i class="ti ti-arrow-right" style="font-size:13px"></i></div>
+      </div>
+    </div>`).join('');
+}
+
+function domainDrillDown(filter, name) {
+  discFilter = filter;
+  $('disc-filters').removeAttribute('data-built');
+  const searchEl = $('disc-search');
+  if (searchEl) searchEl.value = '';
+  nav('discovery');
+  // Update topbar hint
+  $('topbar-title').textContent = name + ' Datasets';
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderOverview();
+renderLanding();
 // Pre-render discovery in background so filters build instantly
 setTimeout(()=>{
   const tmp=currentView; nav('discovery'); nav(tmp);
