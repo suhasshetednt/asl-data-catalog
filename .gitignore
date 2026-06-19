@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+*.local
+
+# catalog-data.json is generated at build time — do NOT commit it
+# (the GitHub Actions workflow generates it fresh on every deploy)
+public/catalog-data.json

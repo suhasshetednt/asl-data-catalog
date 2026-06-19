@@ -1,0 +1,84 @@
+name: Sync Dremio & Deploy to GitHub Pages
+
+on:
+  # Auto-sync every 30 minutes
+  schedule:
+    - cron: '*/30 * * * *'
+
+  # Deploy on every push to main
+  push:
+    branches:
+      - main
+
+  # Manual trigger (also lets you enable row counts)
+  workflow_dispatch:
+    inputs:
+      with_counts:
+        description: 'Fetch row counts from Dremio (slow)'
+        required: false
+        default: 'false'
+        type: boolean
+
+# Required for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  sync-and-deploy:
+    name: Sync Dremio → Build → Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Node setup ────────────────────────────────────────────────────────
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ── 3. Sync Dremio catalog ───────────────────────────────────────────────
+      - name: Sync Dremio catalog
+        env:
+          DREMIO_BASE_URL: ${{ secrets.DREMIO_BASE_URL }}
+          DREMIO_PAT:      ${{ secrets.DREMIO_PAT }}
+        run: |
+          FLAGS=""
+          [ "${{ inputs.with_counts }}" = "true" ] && FLAGS="--with-counts"
+          node scripts/sync-catalog.js --output public/catalog-data.json $FLAGS
+
+      # ── 4. Build React app (Vite) ────────────────────────────────────────────
+      # Vite copies public/ into dist/ automatically, so catalog-data.json
+      # is included in the build output without any extra steps.
+      - name: Build React app
+        run: npm run react:build
+
+      # ── 5. Deploy to GitHub Pages ────────────────────────────────────────────
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
