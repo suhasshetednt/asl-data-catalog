@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Catalog — Cargo Network</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#070b10;
+    --panel:#10161f;
+    --panel-2:#141b25;
+    --line:#1f2937;
+    --line-soft:#161d27;
+    --amber:#ffa630;
+    --amber-dim:#c97e1f;
+    --teal:#4fd1c5;
+    --green:#4ade80;
+    --text:#edf1f5;
+    --muted:#8a96a6;
+    --muted-2:#566273;
+    --font-display:'Big Shoulders Display', sans-serif;
+    --font-body:'IBM Plex Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:
+      radial-gradient(ellipse 1000px 520px at 82% -4%, rgba(255,166,48,0.07), transparent 60%),
+      radial-gradient(ellipse 900px 600px at 6% 8%, rgba(79,209,197,0.06), transparent 55%),
+      var(--ink);
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(237,241,245,0.022) 0px, transparent 1px, transparent 64px, rgba(237,241,245,0.022) 65px),
+      repeating-linear-gradient(90deg, rgba(237,241,245,0.022) 0px, transparent 1px, transparent 64px, rgba(237,241,245,0.022) 65px);
+    pointer-events:none; z-index:0;
+  }
+
+  body::after{
+    content:'';
+    position:fixed; inset:0;
+    background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%25" height="100%25" filter="url(%23n)"/></svg>');
+    background-size:140px 140px;
+    opacity:0.035;
+    mix-blend-mode:overlay;
+    pointer-events:none; z-index:1;
+  }
+
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--teal); outline-offset:3px;}
+
+  /* ============ BOOT OVERLAY ============ */
+  .boot-overlay{
+    position:fixed; inset:0; z-index:999;
+    background:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    transition:opacity .55s ease;
+  }
+  .boot-overlay.hide{opacity:0; pointer-events:none;}
+  .boot-inner{
+    font-family:var(--font-mono);
+    font-size:13px;
+    letter-spacing:0.08em;
+    color:var(--teal);
+  }
+  .boot-caret{color:var(--amber); margin-right:8px;}
+  .caret-blink{animation:blink 1s step-end infinite; margin-left:2px;}
+  @keyframes blink{50%{opacity:0;}}
+
+  /* ============ TOP BAR ============ */
+  .topbar{
+    position:relative; z-index:5;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px clamp(20px, 5vw, 64px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .brand{
+    display:flex; align-items:baseline; gap:10px;
+    font-family:var(--font-mono); font-size:13px; letter-spacing:0.08em;
+  }
+  .brand .mark{color:var(--amber); font-size:15px;}
+  .brand .sub{color:var(--muted); font-weight:400;}
+
+  .status{
+    display:flex; align-items:center; gap:18px;
+    font-family:var(--font-mono); font-size:12px; color:var(--muted); letter-spacing:0.06em;
+  }
+  .status .dot-live{display:inline-flex; align-items:center; gap:7px; color:var(--green);}
+  .status .dot-live::before{
+    content:''; width:7px; height:7px; border-radius:50%; background:var(--green);
+    box-shadow:0 0 8px var(--green); animation:pulse 2s ease-in-out infinite;
+  }
+  .status .clock{color:var(--text); font-variant-numeric:tabular-nums;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.35;}}
+
+  /* ============ HERO ============ */
+  .hero{
+    position:relative; z-index:1;
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:clamp(24px,4vw,56px);
+    align-items:center;
+    padding:clamp(48px,8vw,84px) clamp(20px, 5vw, 64px) clamp(56px,7vw,90px);
+  }
+
+  .eyebrow{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.18em;
+    color:var(--amber); text-transform:uppercase;
+    display:flex; align-items:center; gap:12px; margin-bottom:14px;
+    opacity:0; transform:translateY(10px);
+  }
+  .eyebrow::before{content:''; width:28px; height:1px; background:var(--amber-dim);}
+
+  .docref{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em;
+    color:var(--muted-2); margin-bottom:22px;
+    opacity:0; transform:translateY(10px);
+  }
+
+  .hero h1{
+    font-family:var(--font-display); font-weight:800;
+    font-size:clamp(2.5rem, 5.4vw, 4.7rem);
+    line-height:0.97; letter-spacing:-0.01em; text-transform:uppercase;
+    max-width:16ch;
+    opacity:0; transform:translateY(14px);
+  }
+  .hero h1 .accent{color:var(--amber);}
+
+  .hero .subhead{
+    margin-top:24px; max-width:540px;
+    font-size:clamp(15px, 1.5vw, 17px); color:var(--muted);
+    opacity:0; transform:translateY(10px);
+  }
+
+  .hero-actions{margin-top:34px; opacity:0; transform:translateY(10px);}
+  .btn{
+    font-family:var(--font-mono); font-size:13px; letter-spacing:0.05em; text-transform:uppercase;
+    padding:14px 26px; border-radius:2px; cursor:pointer; border:none;
+    transition:all .2s ease; text-decoration:none; display:inline-flex; align-items:center; gap:10px;
+    background:var(--amber); color:#1a1206; font-weight:600;
+  }
+  .btn:hover{background:#ffb45c; transform:translateY(-1px);}
+
+  body.ready .eyebrow,
+  body.ready .docref,
+  body.ready .hero h1,
+  body.ready .hero .subhead,
+  body.ready .hero-actions{
+    animation:rise .6s ease forwards;
+  }
+  body.ready .docref{animation-delay:.08s;}
+  body.ready .hero h1{animation-delay:.15s;}
+  body.ready .hero .subhead{animation-delay:.3s;}
+  body.ready .hero-actions{animation-delay:.42s;}
+  @keyframes rise{to{opacity:1; transform:translateY(0);}}
+
+  /* ---- radar visual ---- */
+  .hero-visual{display:flex; flex-direction:column; align-items:center; gap:16px;}
+
+  .radar-wrap{
+    position:relative; width:100%; max-width:440px; aspect-ratio:1/1;
+    opacity:0; transform:scale(0.92);
+  }
+  body.ready .radar-wrap{animation:radar-in .8s ease forwards .2s;}
+  @keyframes radar-in{to{opacity:1; transform:scale(1);}}
+
+  .radar-wrap::before{
+    content:''; position:absolute; inset:-14%;
+    background:radial-gradient(circle, rgba(255,166,48,0.10), transparent 62%);
+    filter:blur(18px); z-index:-1;
+  }
+
+  .ring{
+    position:absolute; top:50%; left:50%; border-radius:50%;
+    border:1px solid var(--line); transform:translate(-50%,-50%);
+  }
+  .ring.r1{width:44%; height:44%;}
+  .ring.r2{width:70%; height:70%;}
+  .ring.r3{width:96%; height:96%; border-color:var(--line-soft);}
+
+  .sweep{
+    position:absolute; inset:2%; border-radius:50%; overflow:hidden;
+  }
+  .sweep::before{
+    content:''; position:absolute; inset:0;
+    background:conic-gradient(from 0deg, transparent 0deg, transparent 320deg, rgba(255,166,48,0.4) 350deg, rgba(255,166,48,0.05) 360deg);
+    animation:spin 7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .radar-lines{position:absolute; inset:0; width:100%; height:100%;}
+  .radar-line{stroke:var(--line); stroke-width:0.35;}
+
+  .hub{
+    position:absolute; top:50%; left:50%; width:27%; height:27%;
+    transform:translate(-50%,-50%); border-radius:50%;
+    background:var(--panel); border:1px solid var(--amber-dim);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    box-shadow:0 0 0 6px rgba(255,166,48,0.04), 0 0 24px rgba(255,166,48,0.12);
+    text-align:center;
+  }
+  .hub span{
+    font-family:var(--font-mono); font-weight:600; letter-spacing:0.1em;
+    font-size:clamp(9px,2.4vw,11px); line-height:1.5;
+  }
+  .hub span:first-child{color:var(--muted);}
+  .hub span:last-child{color:var(--text);}
+
+  .radar-node{
+    position:absolute; transform:translate(-50%,-50%);
+    background:var(--panel-2); border:1px solid var(--line); border-radius:3px;
+    padding:6px 9px; text-align:center; cursor:pointer;
+    transition:all .2s ease; min-width:58px;
+  }
+  .radar-node:hover, .radar-node:focus-visible{
+    border-color:var(--amber); background:var(--panel); transform:translate(-50%,-50%) scale(1.08);
+  }
+  .radar-node .n-name{
+    display:block; font-family:var(--font-mono); font-weight:600; font-size:9.5px;
+    letter-spacing:0.06em; color:var(--text); text-transform:uppercase;
+  }
+  .radar-node .n-code{
+    display:block; font-family:var(--font-mono); font-size:8px; color:var(--teal); margin-top:2px;
+  }
+  .radar-node::after{
+    content:''; position:absolute; top:-3px; right:-3px; width:5px; height:5px; border-radius:50%;
+    background:var(--green); box-shadow:0 0 5px var(--green);
+    animation:pulse 2.4s ease-in-out infinite;
+  }
+  .radar-node:nth-child(odd)::after{animation-delay:.6s;}
+
+  .radar-caption{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em; color:var(--muted-2);
+    text-align:center; opacity:0;
+  }
+  body.ready .radar-caption{animation:rise .6s ease forwards .9s;}
+
+  /* ============ MANIFEST SECTION ============ */
+  .manifest{position:relative; z-index:1; padding:0 clamp(20px, 5vw, 64px) clamp(80px, 8vw, 120px);}
+
+  .manifest-head{
+    display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:16px;
+    padding:32px 0 22px; border-bottom:1px solid var(--line); margin-bottom:6px;
+  }
+  .manifest-head h2{
+    font-family:var(--font-display); font-weight:700; font-size:clamp(1.5rem, 2.4vw, 2rem);
+    text-transform:uppercase;
+  }
+  .manifest-head .note{font-family:var(--font-mono); font-size:12px; color:var(--muted-2); letter-spacing:0.04em;}
+
+  .col-labels{
+    display:grid; grid-template-columns:44px 160px 1fr 110px 28px 64px; gap:18px;
+    padding:0 16px 10px; font-family:var(--font-mono); font-size:10px; letter-spacing:0.12em;
+    color:var(--muted-2); text-transform:uppercase;
+  }
+
+  .rack{display:flex; flex-direction:column;}
+
+  .strip{border-bottom:1px solid var(--line-soft); opacity:0; transform:translateX(20px);}
+  body.ready .strip{animation:slide-in .55s ease forwards;}
+  body.ready .strip:nth-child(1){animation-delay:1.0s;}
+  body.ready .strip:nth-child(2){animation-delay:1.06s;}
+  body.ready .strip:nth-child(3){animation-delay:1.12s;}
+  body.ready .strip:nth-child(4){animation-delay:1.18s;}
+  body.ready .strip:nth-child(5){animation-delay:1.24s;}
+  body.ready .strip:nth-child(6){animation-delay:1.30s;}
+  body.ready .strip:nth-child(7){animation-delay:1.36s;}
+  body.ready .strip:nth-child(8){animation-delay:1.42s;}
+  @keyframes slide-in{to{opacity:1; transform:translateX(0);}}
+
+  .strip-head{
+    display:grid; grid-template-columns:44px 160px 1fr 110px 28px 64px;
+    align-items:center; gap:18px; padding:18px 16px; cursor:pointer;
+    border-left:3px solid transparent; background:transparent;
+    transition:background .2s ease, border-color .2s ease, transform .2s ease;
+  }
+  .strip-head:hover, .strip-head:focus-visible{background:var(--panel); border-left-color:var(--amber); transform:translateX(2px);}
+  .strip.open .strip-head{background:var(--panel); border-left-color:var(--amber);}
+
+  .s-no{font-family:var(--font-mono); font-size:13px; color:var(--muted-2);}
+
+  .s-codes{display:flex; flex-wrap:wrap; gap:6px;}
+  .code-pill{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.04em; color:var(--teal);
+    border:1px solid rgba(79,209,197,0.35); background:rgba(79,209,197,0.06);
+    padding:3px 8px; border-radius:2px; white-space:nowrap;
+  }
+
+  .s-nameblock{display:flex; flex-direction:column; gap:4px;}
+  .s-name{
+    font-family:var(--font-display); font-weight:700; font-size:clamp(1.05rem, 1.5vw, 1.3rem);
+    text-transform:uppercase; letter-spacing:0.01em;
+  }
+  .s-desc{font-size:13px; color:var(--muted);}
+
+  .s-status{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.08em; color:var(--green);
+    display:flex; align-items:center; gap:7px; justify-self:end;
+  }
+  .s-status::before{content:''; width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green);}
+
+  .s-chevron{
+    width:26px; height:26px; display:flex; align-items:center; justify-content:center;
+    color:var(--muted); transition:transform .3s ease; justify-self:end;
+  }
+  .strip.open .s-chevron{transform:rotate(180deg); color:var(--amber);}
+
+  .stub{
+    border-left:1px dashed var(--line); padding-left:14px; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  }
+  .stub-no{font-family:var(--font-mono); font-size:8.5px; letter-spacing:0.08em; color:var(--muted-2); white-space:nowrap;}
+  .barcode{
+    width:100%; height:20px;
+    background-image:repeating-linear-gradient(90deg,
+      var(--muted) 0px, var(--muted) 1px, transparent 1px, transparent 3px,
+      var(--muted) 3px, var(--muted) 4px, transparent 4px, transparent 8px,
+      var(--muted) 8px, var(--muted) 9px, transparent 9px, transparent 12px,
+      var(--muted) 12px, var(--muted) 13px, transparent 13px, transparent 15px);
+    opacity:0.5;
+  }
+
+  .s-details-wrap{display:grid; grid-template-rows:0fr; transition:grid-template-rows .35s ease;}
+  .strip.open .s-details-wrap{grid-template-rows:1fr;}
+  .s-details-inner{overflow:hidden; min-height:0;}
+  .s-details{padding:4px 16px 26px 62px; display:flex; flex-wrap:wrap; gap:10px;}
+  .data-chip{
+    font-family:var(--font-mono); font-size:12px; color:var(--text); background:var(--panel-2);
+    border:1px solid var(--line); padding:9px 14px; border-radius:2px; display:flex; align-items:center; gap:8px;
+  }
+  .data-chip::before{content:'▸'; color:var(--amber); font-size:10px;}
+
+  /* ============ FOOTER ============ */
+  footer{
+    position:relative; z-index:1; border-top:1px solid var(--line-soft);
+    padding:28px clamp(20px, 5vw, 64px); display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.05em; color:var(--muted-2);
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:980px){
+    .hero{grid-template-columns:1fr;}
+    .hero-visual{order:-1; margin-bottom:8px;}
+    .radar-wrap{max-width:340px;}
+  }
+
+  @media (max-width:880px){
+    .col-labels{display:none;}
+    .strip-head{
+      grid-template-columns:30px 1fr 24px;
+      grid-template-areas:"no name chev" "no codes chev" ". status .";
+      row-gap:8px;
+    }
+    .s-no{grid-area:no;} .s-nameblock{grid-area:name;} .s-codes{grid-area:codes;}
+    .s-chevron{grid-area:chev;} .s-status{grid-area:status; justify-self:start;}
+    .s-desc{display:none;} .stub{display:none;}
+    .s-details{padding-left:16px;}
+  }
+
+  @media (max-width:520px){
+    .status{font-size:10px; gap:10px;}
+    .status .clock{display:none;}
+    .radar-node{min-width:46px; padding:4px 6px;}
+    .radar-node .n-name{font-size:8px;}
+    .radar-node .n-code{font-size:7px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important;}
+    .eyebrow,.docref,.hero h1,.hero .subhead,.hero-actions,.radar-wrap,.radar-caption,.strip{opacity:1; transform:none;}
+    .sweep::before{display:none;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="boot-overlay" id="boot">
+    <div class="boot-inner"><span class="boot-caret">▸</span><span id="boot-text"></span><span class="caret-blink">_</span></div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand"><span class="mark">✈</span> ASL AVIATION GROUP <span class="sub">/ DATA CATALOG</span></div>
+    <div class="status">
+      <span class="dot-live">OPERATIONAL</span>
+      <span id="clock" class="clock">--:--:--</span>
+      <span id="dateline"></span>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-text">
+      <p class="eyebrow">Enterprise Data Catalog</p>
+      <p class="docref">REF ASL-DC-2026 · STATUS LIVE · ALL DOMAINS</p>
+      <h1>The Manifest<br>for Every <span class="accent">Domain</span></h1>
+      <p class="subhead">Flight Ops, Maintenance, Finance, Crew, Cargo, Fleet, Supply Chain and HR — every dataset across the network, traced back to its source system, in one place built to find, trust, and use.</p>
+      <div class="hero-actions"><a href="#manifest" class="btn">View the Manifest ↓</a></div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="radar-wrap" id="radarWrap">
+        <div class="ring r1"></div>
+        <div class="ring r2"></div>
+        <div class="ring r3"></div>
+        <div class="sweep"></div>
+        <svg class="radar-lines" id="radarLines" viewBox="0 0 100 100"></svg>
+        <div class="hub"><span>DATA</span><span>CATALOG</span></div>
+        <div id="radarNodes"></div>
+      </div>
+      <p class="radar-caption" id="radarCaption">08 DOMAINS · 09 SYSTEMS · ONE CATALOG</p>
+    </div>
+  </section>
+
+  <section class="manifest" id="manifest">
+    <div class="manifest-head">
+      <h2>Domain Manifest</h2>
+      <div class="note">Select an entry to view tracked datasets</div>
+    </div>
+    <div class="col-labels"><span>No.</span><span>System</span><span>Domain</span><span>Status</span><span></span><span></span></div>
+    <div class="rack" id="rack"></div>
+  </section>
+
+  <footer>
+    <span>ASL AVIATION GROUP · CARGO NETWORK DATA CATALOG</span>
+    <span>BUILT BY DNT INFOTECH · v2.5</span>
+  </footer>
+
+<script>
+  const domains = [
+    { short:'FLT OPS', code:['MM'], name:'Flight Operations', desc:'Movement, block times, and delay tracking across every leg in the network.',
+      datasets:['Flight Leg Movements','Technical Delay Codes','Block & Out Times','OCC Daily Reporting'] },
+    { short:'MRO', code:['AMOS','CFM'], name:'Maintenance & Engineering', desc:'MRO records, defect tracking, and engine health across the fleet.',
+      datasets:['Work Orders','MEL Defect Log','Engine Fleet Status','Airworthiness Directives'] },
+    { short:'FINANCE', code:['SAP','XERO','TALLY','HOC'], name:'Finance & Accounting', desc:'Consolidated P&L, GL postings, and entity-level reporting across every book.',
+      datasets:['P&L by Entity','Balance Sheet','GL Postings','EBITDA & Flash Codes'] },
+    { short:'CREW', code:['AIMS'], name:'Crew Management', desc:'Rosters, qualifications, and duty compliance for every crew member.',
+      datasets:['Crew Duty Rosters','Qualifications & Training','Per Diem Allocations','Rest Compliance Logs'] },
+    { short:'CARGO', code:['AMOS'], name:'Cargo / Freight Commercial', desc:'Bookings, capacity, and customer accounts behind every shipment.',
+      datasets:['Shipment Bookings','Capacity & Load Plans','AWB Records','Customer Accounts'] },
+    { short:'FLEET', code:['AMOS','HOC'], name:'Fleet & Asset Management', desc:'Ownership, utilization, and lifecycle data for every airframe.',
+      datasets:['Aircraft Inventory','Lease vs. Owned Status','Utilization Rates','Asset Lifecycle'] },
+    { short:'SUPPLY', code:['AMOS'], name:'Supply Chain & Inventory', desc:'Parts, vendors, and stock health across every store.',
+      datasets:['Rotables & Consumables','AOG Parts','Vendor Records','Slow-Moving Stock'] },
+    { short:'HR', code:['CEZANNE','AMOS'], name:'HR & Workforce', desc:'People, qualifications, and org structure across the business.',
+      datasets:['Staff Records','PQS Qualifications','Org Structure','Headcount & Cost'] }
+  ];
+
+  /* ---- build manifest strip list ---- */
+  const rack = document.getElementById('rack');
+  domains.forEach((d, i) => {
+    const no = String(i + 1).padStart(2, '0');
+    const article = document.createElement('article');
+    article.className = 'strip';
+    article.id = 'strip-' + i;
+    article.innerHTML = `
+      <div class="strip-head" role="button" tabindex="0" aria-expanded="false">
+        <span class="s-no">${no}</span>
+        <span class="s-codes">${d.code.map(c => `<span class="code-pill">${c}</span>`).join('')}</span>
+        <span class="s-nameblock"><span class="s-name">${d.name}</span><span class="s-desc">${d.desc}</span></span>
+        <span class="s-status">Active</span>
+        <span class="s-chevron">
+          <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1L7 7L13 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="stub"><span class="stub-no">NO ${no}</span><span class="barcode"></span></span>
+      </div>
+      <div class="s-details-wrap"><div class="s-details-inner"><div class="s-details">
+        ${d.datasets.map(ds => `<span class="data-chip">${ds}</span>`).join('')}
+      </div></div></div>
+    `;
+    const head = article.querySelector('.strip-head');
+    const toggle = () => {
+      const isOpen = article.classList.toggle('open');
+      head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    };
+    head.addEventListener('click', toggle);
+    head.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+    rack.appendChild(article);
+  });
+
+  /* ---- build radar nodes + lines ---- */
+  const nodesWrap = document.getElementById('radarNodes');
+  const linesSvg = document.getElementById('radarLines');
+  const nodeR = 42, lineInnerR = 16, lineOuterR = 38;
+
+  domains.forEach((d, i) => {
+    const angle = (i * 45 - 90) * Math.PI / 180;
+    const nx = 50 + nodeR * Math.cos(angle);
+    const ny = 50 + nodeR * Math.sin(angle);
+
+    const node = document.createElement('div');
+    node.className = 'radar-node';
+    node.tabIndex = 0;
+    node.style.left = nx + '%';
+    node.style.top = ny + '%';
+    node.innerHTML = `<span class="n-name">${d.short}</span><span class="n-code">${d.code[0]}</span>`;
+    const jump = () => {
+      const target = document.getElementById('strip-' + i);
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => { if (!target.classList.contains('open')) target.querySelector('.strip-head').click(); }, 450);
+    };
+    node.addEventListener('click', jump);
+    node.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); jump(); } });
+    nodesWrap.appendChild(node);
+
+    const x1 = 50 + lineInnerR * Math.cos(angle), y1 = 50 + lineInnerR * Math.sin(angle);
+    const x2 = 50 + lineOuterR * Math.cos(angle), y2 = 50 + lineOuterR * Math.sin(angle);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('class', 'radar-line');
+    linesSvg.appendChild(line);
+  });
+
+  /* ---- stats ---- */
+  const uniqueSystems = new Set(domains.flatMap(d => d.code));
+  document.getElementById('radarCaption').textContent =
+    `${String(domains.length).padStart(2,'0')} DOMAINS · ${String(uniqueSystems.size).padStart(2,'0')} SYSTEMS · ONE CATALOG`;
+
+  /* ---- clock ---- */
+  function updateClock(){
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      [now.getHours(), now.getMinutes(), now.getSeconds()].map(n => String(n).padStart(2,'0')).join(':');
+    document.getElementById('dateline').textContent =
+      now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  /* ---- boot sequence ---- */
+  function finishBoot(){
+    document.body.classList.add('ready');
+    const boot = document.getElementById('boot');
+    boot.classList.add('hide');
+    setTimeout(() => boot.remove(), 600);
+  }
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) {
+    finishBoot();
+  } else {
+    const lines = ['INITIALIZING CATALOG', 'LINKING SOURCE SYSTEMS', 'MANIFEST READY'];
+    const el = document.getElementById('boot-text');
+    let i = 0;
+    (function typeLine(){
+      if (i >= lines.length) { setTimeout(finishBoot, 220); return; }
+      el.textContent = lines[i]; i++;
+      setTimeout(typeLine, 380);
+    })();
+  }
+</script>
+</body>
+</html>
