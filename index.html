@@ -290,6 +290,11 @@ input,select,textarea{font-family:inherit}
 .kc-table-row:hover{color:var(--text1)}
 .kc-table-row i{font-size:11px;color:var(--text3);flex-shrink:0}
 .kc-table-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kc-more-toggle{display:flex;align-items:center;gap:5px;width:100%;margin-top:6px;
+  padding:5px 0;background:none;border:none;font:inherit;font-size:11px;font-weight:600;
+  color:var(--text3);cursor:pointer;transition:color .15s}
+.kc-more-toggle:hover{color:var(--text1)}
+.kc-more-toggle i{font-size:13px}
 
 /* Quality table */
 .quality-table{width:100%;border-collapse:collapse;font-size:12px}
@@ -1063,20 +1068,37 @@ function renderKnowledge(){
 }
 
 function knCard(name, tables, color){
-  const sample = tables.slice(0,8);
+  const row = t=>`<div class="kc-table-row" onclick="openTable(TABLES.find(x=>x.id==='${esc(t.id)}'))">
+      <i class="ti ti-table"></i>
+      <span class="kc-table-name">${esc(t.table)}</span>
+      <i class="ti ti-chevron-right"></i>
+    </div>`;
+  const visible = tables.slice(0,8);
+  const hidden  = tables.slice(8);
+  const more = hidden.length;
   return `<div class="knowledge-card">
     <div class="kc-header">
       <div class="kc-dot" style="background:${color}"></div>
       <div class="kc-name">${esc(name)}</div>
       <div class="kc-count">${tables.length} tables</div>
     </div>
-    ${sample.map(t=>`<div class="kc-table-row" onclick="openTable(TABLES.find(x=>x.id==='${esc(t.id)}'))">
-      <i class="ti ti-table"></i>
-      <span class="kc-table-name">${esc(t.table)}</span>
-      <i class="ti ti-chevron-right"></i>
-    </div>`).join('')}
-    ${tables.length>8?`<div style="font-size:11px;color:var(--text3);margin-top:6px">+${tables.length-8} more tables</div>`:''}
+    ${visible.map(row).join('')}
+    ${more?`<div class="kc-more" hidden>${hidden.map(row).join('')}</div>
+    <button type="button" class="kc-more-toggle" aria-expanded="false" onclick="toggleKnMore(this)">
+      <i class="ti ti-chevron-down"></i><span class="kc-more-label">+${more} more tables</span>
+    </button>`:''}
   </div>`;
+}
+
+function toggleKnMore(btn){
+  const wrap = btn.previousElementSibling;
+  const open = wrap.hidden;
+  wrap.hidden = !open;
+  btn.setAttribute('aria-expanded', String(open));
+  const label = btn.querySelector('.kc-more-label');
+  const count = wrap.children.length;
+  label.textContent = open ? 'Show less' : `+${count} more tables`;
+  btn.querySelector('i').className = open ? 'ti ti-chevron-up' : 'ti ti-chevron-down';
 }
 
 // ── Quality ───────────────────────────────────────────────────────────────────
