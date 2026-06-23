@@ -432,7 +432,7 @@ input,select,textarea{font-family:inherit}
 #lv2 .lv2-mhead{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;padding:32px 0 22px;border-bottom:2px solid #0061AF;margin-bottom:6px;}
 #lv2 .lv2-mhead h2{font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:clamp(1.5rem,2.4vw,2rem);text-transform:uppercase;color:#0a2a4a;}
 #lv2 .lv2-mnote{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a9bab;letter-spacing:.04em;}
-#lv2 .lv2-cols{display:grid;grid-template-columns:44px 160px 1fr 110px 28px 64px;gap:18px;align-items:center;padding:15px 16px;margin-bottom:4px;border-left:3px solid #004a87;background:linear-gradient(90deg,#0061AF 0%,#1277c9 100%);border-radius:5px 5px 0 0;box-shadow:0 3px 12px rgba(0,97,175,.22);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.2em;color:#ffffff;text-transform:uppercase;text-align:center;}
+#lv2 .lv2-cols{display:grid;grid-template-columns:44px 160px 1fr 110px 28px;gap:18px;align-items:center;padding:15px 16px;margin-bottom:4px;border-left:3px solid #004a87;background:linear-gradient(90deg,#0061AF 0%,#1277c9 100%);border-radius:5px 5px 0 0;box-shadow:0 3px 12px rgba(0,97,175,.22);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.2em;color:#ffffff;text-transform:uppercase;text-align:center;}
 #lv2 .lv2-rack{display:flex;flex-direction:column;}
 #lv2 .lv2-strip{border-bottom:1px solid #e4edf4;opacity:0;transform:translateX(20px);}
 #lv2.lv2-ready .lv2-strip:nth-child(1){animation:lv2slide .55s ease forwards 1.0s;}
@@ -443,7 +443,7 @@ input,select,textarea{font-family:inherit}
 #lv2.lv2-ready .lv2-strip:nth-child(6){animation:lv2slide .55s ease forwards 1.30s;}
 #lv2.lv2-ready .lv2-strip:nth-child(7){animation:lv2slide .55s ease forwards 1.36s;}
 #lv2.lv2-ready .lv2-strip:nth-child(8){animation:lv2slide .55s ease forwards 1.42s;}
-#lv2 .lv2-shead{display:grid;grid-template-columns:44px 160px 1fr 110px 28px 64px;align-items:center;gap:18px;padding:18px 16px;cursor:pointer;border-left:3px solid transparent;background:transparent;transition:background .2s,border-color .2s,transform .2s;width:100%;font-family:inherit;color:inherit;border-top:none;border-right:none;border-bottom:none;text-align:center;}
+#lv2 .lv2-shead{display:grid;grid-template-columns:44px 160px 1fr 110px 28px;align-items:center;gap:18px;padding:18px 16px;cursor:pointer;border-left:3px solid transparent;background:transparent;transition:background .2s,border-color .2s,transform .2s;width:100%;font-family:inherit;color:inherit;border-top:none;border-right:none;border-bottom:none;text-align:center;}
 #lv2 .lv2-shead:hover{background:#f3f8fc;border-left-color:#0061AF;transform:translateX(2px);}
 #lv2 .lv2-strip.lv2-open .lv2-shead{background:#f3f8fc;border-left-color:#0061AF;}
 #lv2 .lv2-sno{font-family:'IBM Plex Mono',monospace;font-size:13px;color:#8a9bab;}
@@ -542,7 +542,7 @@ input,select,textarea{font-family:inherit}
   <!-- Manifest -->
   <section class="lv2-manifest" id="lv2-manifest">
     <div class="lv2-mhead"><h2>ASL - DATA CATALOG</h2><div class="lv2-mnote">Select an entry to view tracked datasets</div></div>
-    <div class="lv2-cols"><span>No.</span><span>System</span><span>Domain</span><span>Status</span><span></span><span></span></div>
+    <div class="lv2-cols"><span>No.</span><span>System</span><span>Domain</span><span>Status</span><span></span></div>
     <div class="lv2-rack" id="lv2-rack"></div>
   </section>
 
@@ -1348,7 +1348,6 @@ function initLv2(){
           '<span class="lv2-nblock"><span class="lv2-sname">'+d.name+'</span><span class="lv2-sdesc">'+d.desc+'</span></span>'+
           '<span class="lv2-sdot">Active</span>'+
           '<span class="lv2-chev"><svg width="14" height="8" viewBox="0 0 14 8" fill="none"><path d="M1 1L7 7L13 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'+
-          '<span class="lv2-stub"><span class="lv2-stubno">NO '+no+'</span><span class="lv2-bar"></span></span>'+
         '</button>'+
         '<div class="lv2-dwrap"><div class="lv2-dinner"><div class="lv2-dets">'+
           chipsHtml+
